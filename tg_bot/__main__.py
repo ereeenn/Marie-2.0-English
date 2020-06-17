@@ -355,7 +355,7 @@ def get_settings(bot: Bot, update: Update):
                                                       url="t.me/{}?start=stngs_{}".format(
                                                           bot.username, chat.id))]]))
         else:
-            text = "Click here to check your settings."
+            text = "Buraya ayarlarınızı görüntülemek istiyorsanız tıklayın."
 
     else:
         send_settings(chat.id, user.id, True)
@@ -370,7 +370,7 @@ def donate(bot: Bot, update: Update):
         update.effective_message.reply_text(DONATE_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
         if OWNER_ID != 254318997 and DONATION_LINK:
-            update.effective_message.reply_text("You can also donate to the person currently running me "
+            update.effective_message.reply_text("Ayrıca şuan beni çalıştıran kişiye bağış yapabilirsiniz."
                                                 "[here]({})".format(DONATION_LINK),
                                                 parse_mode=ParseMode.MARKDOWN)
 
@@ -378,7 +378,7 @@ def donate(bot: Bot, update: Update):
         try:
             bot.send_message(user.id, DONATE_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-            update.effective_message.reply_text("Bağış yaptığını PM'den Yaratıcıma söyledim!")
+            update.effective_message.reply_text("Bağış yaptığınızı PM'den Yaratıcıma söyledim!")
         except Unauthorized:
             update.effective_message.reply_text("Bağış hakkında bilgi almak için PM'den mesaj at.")
 
