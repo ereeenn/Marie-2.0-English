@@ -106,7 +106,7 @@ def lock(bot: Bot, update: Update, args: List[str]) -> str:
         if len(args) >= 1:
             if args[0] in LOCK_TYPES:
                 sql.update_lock(chat.id, args[0], locked=True)
-                message.reply_text("Locked {} messages for all non-admins!".format(args[0]))
+                message.reply_text("Yönetici olmayan tüm iletiler için kilitli {} iletileri!".format(args[0]))
 
                 return "<b>{}:</b>" \
                        "\n#LOCK" \
@@ -120,7 +120,7 @@ def lock(bot: Bot, update: Update, args: List[str]) -> str:
                     members = users_sql.get_chat_members(str(chat.id))
                     restr_members(bot, chat.id, members, messages=True, media=True, other=True)
 
-                message.reply_text("Locked {} for all non-admins!".format(args[0]))
+                message.reply_text("Tüm yönetici olmayanlar için kilitli {}!".format(args[0]))
                 return "<b>{}:</b>" \
                        "\n#LOCK" \
                        "\n<b>Admin:</b> {}" \
@@ -128,10 +128,10 @@ def lock(bot: Bot, update: Update, args: List[str]) -> str:
                                                           mention_html(user.id, user.first_name), args[0])
 
             else:
-                message.reply_text("What are you trying to lock...? Try /locktypes for the list of lockables")
+                message.reply_text("Neyi kilitlemeye çalışıyorsun?..? Try /locktypes for the list of lockables")
 
     else:
-        message.reply_text("I'm not an administrator, or haven't got delete rights.")
+        message.reply_text("Yönetici değilim veya silme haklarım yok.")
 
     return ""
 
@@ -147,7 +147,7 @@ def unlock(bot: Bot, update: Update, args: List[str]) -> str:
         if len(args) >= 1:
             if args[0] in LOCK_TYPES:
                 sql.update_lock(chat.id, args[0], locked=False)
-                message.reply_text("Unlocked {} for everyone!".format(args[0]))
+                message.reply_text("Herkes için kilidi açık {}!".format(args[0]))
                 return "<b>{}:</b>" \
                        "\n#UNLOCK" \
                        "\n<b>Admin:</b> {}" \
@@ -160,16 +160,12 @@ def unlock(bot: Bot, update: Update, args: List[str]) -> str:
                 members = users_sql.get_chat_members(chat.id)
                 if args[0] == "messages":
                     unrestr_members(bot, chat.id, members, media=False, other=False, previews=False)
-
                 elif args[0] == "media":
                     unrestr_members(bot, chat.id, members, other=False, previews=False)
-
                 elif args[0] == "other":
                     unrestr_members(bot, chat.id, members, previews=False)
-
                 elif args[0] == "previews":
                     unrestr_members(bot, chat.id, members)
-
                 elif args[0] == "all":
                     unrestr_members(bot, chat.id, members, True, True, True, True)
                 """
@@ -181,10 +177,10 @@ def unlock(bot: Bot, update: Update, args: List[str]) -> str:
                        "\nUnlocked <code>{}</code>.".format(html.escape(chat.title),
                                                             mention_html(user.id, user.first_name), args[0])
             else:
-                message.reply_text("What are you trying to unlock...? Try /locktypes for the list of lockables")
+                message.reply_text("Neyi çözmeye çalışıyorsun...? Kilitlenebilirler listesi için /locktypes deneyin")
 
         else:
-            bot.sendMessage(chat.id, "What are you trying to unlock...?")
+            bot.sendMessage(chat.id, "Neyi çözmeye çalışıyorsun?..?")
 
     return ""
 
@@ -202,12 +198,12 @@ def del_lockables(bot: Bot, update: Update):
                 for new_mem in new_members:
                     if new_mem.is_bot:
                         if not is_bot_admin(chat, bot.id):
-                            message.reply_text("I see a bot, and I've been told to stop them joining... "
-                                               "but I'm not admin!")
+                            message.reply_text("Ben bir bot görmek ve onları katılmadan durdurmak için söylendi ... "
+                                               "ama ben yönetici değilim.!")
                             return
 
                         chat.kick_member(new_mem.id)
-                        message.reply_text("Only admins are allowed to add bots to this chat! Get outta here.")
+                        message.reply_text("Sadece yöneticiler bu sohbet e botlar eklemek için izin verilir! Buradan çık..")
             else:
                 try:
                     message.delete()
@@ -230,7 +226,7 @@ def rest_handler(bot: Bot, update: Update):
             try:
                 msg.delete()
             except BadRequest as excp:
-                if excp.message == "Message to delete not found":
+                if excp.message == "Silinecek ileti bulunamadı":
                     pass
                 else:
                     LOGGER.exception("ERROR in restrictions")
@@ -241,9 +237,9 @@ def build_lock_message(chat_id):
     locks = sql.get_locks(chat_id)
     restr = sql.get_restr(chat_id)
     if not (locks or restr):
-        res = "There are no current locks in this chat."
+        res = "Bu sohbette geçerli kilit yok."
     else:
-        res = "These are the locks in this chat:"
+        res = "Bunlar bu sohbetteki kilitler.:"
         if locks:
             res += "\n - sticker = `{}`" \
                    "\n - audio = `{}`" \
@@ -289,21 +285,18 @@ def __chat_settings__(chat_id, user_id):
 
 
 __help__ = """
- - /locktypes: a list of possible locktypes
-
-*Admin only:*
- - /lock <type>: lock items of a certain type (not available in private)
- - /unlock <type>: unlock items of a certain type (not available in private)
- - /locks: the current list of locks in this chat.
-
-Locks can be used to restrict a group's users.
-eg:
-Locking urls will auto-delete all messages with urls which haven't been whitelisted, locking stickers will delete all \
-stickers, etc.
-Locking bots will stop non-admins from adding bots to the chat.
+ - /locktypes: olası kilit türlerinin listesi
+*Yalnızca yönetici:*
+ - /lock <tip>: belirli bir türdeki kilit öğelerini (özel olarak kullanılamaz)
+ - /Unlock <tip>: belirli bir tür öğeleri kilidini (özel olarak kullanılamaz)
+ - /locks: bu sohbetteki kilitlerin geçerli listesi.
+Kilitler, bir grubun kullanıcılarını kısıtlamak için kullanılabilir.
+Örneğin:
+Url'leri kilitleme, beyaz listeye alınmamış url'li tüm iletileri otomatik olarak siler, çıkartmaları kilitlemek tüm \
+çıkartmalar, vb.
 """
 
-__mod_name__ = "Locks"
+__mod_name__ = "kilit"
 
 LOCKTYPES_HANDLER = DisableAbleCommandHandler("locktypes", locktypes)
 LOCK_HANDLER = CommandHandler("lock", lock, pass_args=True, filters=Filters.group)
